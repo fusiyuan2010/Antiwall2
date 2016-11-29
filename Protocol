@@ -1,0 +1,40 @@
+
+
+
+  Ins                                                            Out
+                     <--- 16 Byte Random Key ---
+      ( All following data transfered with encryption by the key)
+                      --- ver, auth: uid, pwd --->
+                      <-------- 16 Byte auth reply--
+                 (if faild, Out then close after sent reply)
+                // Ins can not work with out tunnel be set
+
+
+
+  For every conn. established by client to Ins:
+                     Ins handshake with client with sock5
+            -----  Build Connection with addr:port, and id   ---->
+                      <------ result of conn, id ----
+                 client close client conn if result is failure
+                     
+  client send msg    --------- ID: msg --------->  find corresponding conn and send msg ->
+  send back to client <-------- ID: msg ---------   <--- find corresponding id to conn
+
+      
+
+
+
+ 
+  Msg:
+     for auth: [version: 1B, usrlen: 1B , pwdlen: 1B, usr, pwd]  // first msg ins to out
+     for auth reply:  [16 Byte] all bytes encrypted 
+                      1B: ver 2B: authed, or invalid_pwd, or new version
+
+     for create conn:  [TYPE: 1B, ID: 4B, addrlen: 1B, port:2B] // encryption begins from 7th byte
+     for close conn [TYPE: 1B, ID: 4B]  // no encryption
+     for conn closed  [TYPE: 1B, ID: 4B]  // no encryption
+     for conn established  [TYPE: 1B, ID: 4B]  // no encryption
+     for data:   [TYPE: 1B, ID: 4B, Datalen: 2B, data ] // encryption begins from 8th byte
+
+
+
