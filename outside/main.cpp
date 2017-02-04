@@ -1,7 +1,9 @@
+#include <netinet/tcp.h>
 #include <outside/Common.h>
 #include <outside/UserConn.h>
 #include <outside/RemoteConn.h>
 #include <unistd.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -16,11 +18,14 @@ accept_conn_cb(struct evconnlistener *listener,
 {
     /* We got a new connection! Set up a bufferevent for it. */
     struct event_base *base = evconnlistener_get_base(listener);
+    const char opt_no_delay = 1;
+    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &opt_no_delay, sizeof(char));
+
     struct bufferevent *bev = bufferevent_socket_new(
             base, fd, BEV_OPT_CLOSE_ON_FREE);
 
-    string ip;
-    int port = 30;
+    string ip = inet_ntoa(((struct sockaddr_in *)address)->sin_addr);
+    int port = ntohs(((struct sockaddr_in *)address)->sin_port);
     UserConn *c = new UserConn(bev, ip, port);
     (void)c; // use less, register itself in event loop
 }
@@ -45,7 +50,7 @@ main(int argc, char **argv)
         struct sockaddr_in sin;
         LogInit("outside.log", LTRACE);
 
-        int port = 9876;
+        int port = 80;
 
         if (argc > 1) {
                 port = atoi(argv[1]);
@@ -54,6 +59,9 @@ main(int argc, char **argv)
                 puts("Invalid port");
                 return 1;
         }
+
+        signal(SIGPIPE, SIG_IGN);
+        srand(time(NULL));
 
         UserConn::Init();
         RemoteConn::Init();

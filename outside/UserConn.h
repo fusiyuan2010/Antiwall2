@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <common/EncryptionCtx.h>
+#include <common/Protocol.h>
 
 using namespace std;
 
@@ -22,7 +23,14 @@ class UserConn : public Conn {
     EncryptionCtx csend_;
     EncryptionCtx crecv_;
     Scheduler sched_;
+    OutsideProto *outside_proto_;
+    struct event *timer_ping_;
     friend class RemoteConn;
+
+    // last ts of receiving a message from outside
+    uint64_t last_msg_ts_;
+    uint64_t last_ping_ts_;
+    uint32_t ping_key_;
 
 public:
     typedef int (UserConn::*IOCB)();
@@ -48,6 +56,7 @@ public:
     void NotifyConnCreated(uint32_t id);
     void Close();
     void NotifySched();
+    void SetTimeout(struct event *timer, int ms);
 
     UserConn(struct bufferevent *bev, const string& ip, int port);
     ~UserConn();
@@ -56,6 +65,7 @@ public:
     static void ReadCallback(struct bufferevent *bev, void *ctx);
     static void WriteCallback(struct bufferevent *bev, void *ctx);
     static void EventCallback(struct bufferevent *bev, short events, void *ctx);
+    static void TimerCBPing(evutil_socket_t fd, short what, void *ctx);
 };
 
 #endif

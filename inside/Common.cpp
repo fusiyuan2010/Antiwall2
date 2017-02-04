@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#if defined(_MSC_VER) && _MSC_VER <= 1900
+#if defined(_MSC_VER) && _MSC_VER < 1900
 
 int c99_vsnprintf(char *outBuf, size_t size, const char *format, va_list ap)
 {

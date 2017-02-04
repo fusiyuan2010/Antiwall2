@@ -29,5 +29,7 @@ extern struct event_base *base;
 extern struct evdns_base *dns_base;
 
 
+uint64_t get_current_time_ms();
+
 #endif
 

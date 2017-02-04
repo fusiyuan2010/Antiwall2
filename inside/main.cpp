@@ -111,7 +111,7 @@ main(int argc, char **argv)
     }
 
     
-    RemoteConn *remote_conn = new RemoteConn(g_proxyip, 9999);
+    RemoteConn *remote_conn = new RemoteConn(g_proxyip, 80);
     remote_conn->Connect();
     evconnlistener_set_error_cb(listener, accept_error_cb);
 #ifndef WIN32

@@ -1,17 +1,17 @@
 #!/bin/sh
 
-#OPT=-O3
+OPT=-O3
 DEBUG=-g
 
-CFLAGS=-std=c++11 -Wall -Wno-format -fPIC $(OPT) $(DEBUG) -D_LOG_TRACE
+CFLAGS=-std=c++11 -Wall -Wno-format -fPIC $(OPT) $(DEBUG) -D_LOG_DEBUG
 CC=g++
 LIBS=-levent
 LIB_PATH=-L./
 INCLUDE_PATH=-I./
 
-COMMONOBJS=common/Log.o
-INSIDEOBJS=$(COMMONOBJS) inside/main.o inside/UserConn.o inside/RemoteConn.o
-OUTSIDEOBJS=$(COMMONOBJS) outside/main.o outside/UserConn.o outside/RemoteConn.o outside/Scheduler.o
+COMMONOBJS=common/Log.o common/Protocol.o common/TrafficMeter.o
+INSIDEOBJS=$(COMMONOBJS) inside/main.o inside/UserConn.o inside/RemoteConn.o inside/Common.o
+OUTSIDEOBJS=$(COMMONOBJS) outside/main.o outside/UserConn.o outside/RemoteConn.o outside/Scheduler.o outside/Common.o
 
 all: inside_server outside_server
 

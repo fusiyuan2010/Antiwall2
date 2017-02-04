@@ -19,8 +19,9 @@ class RemoteConn : public Conn {
 public:
     typedef int (RemoteConn::*IOCB)();
     enum {
-        CONNECTING = 1,
-        CONNECTED = 2,
+        RESOLVING = 1,
+        CONNECTING = 2,
+        CONNECTED = 3,
     };
 
 private:
