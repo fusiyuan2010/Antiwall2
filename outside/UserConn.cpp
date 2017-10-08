@@ -29,7 +29,7 @@ UserConn::UserConn(struct bufferevent *bev, const string& ip, int port)
     timer_ping_ = event_new(base, -1, EV_TIMEOUT, UserConn::TimerCBPing, this);
     last_msg_ts_ = get_current_time_ms();
     last_ping_ts_ = 0;
-    SetTimeout(timer_ping_, 1000);
+    SetTimeout(timer_ping_, 200);
 }
 
 UserConn::~UserConn() 
@@ -272,7 +272,7 @@ void UserConn::WriteCallback(struct bufferevent *bev, void *ctx)
 void UserConn::TimerCBPing(evutil_socket_t fd, short what, void *ctx) 
 {
     UserConn *c = (UserConn*)ctx;
-    c->SetTimeout(c->timer_ping_, 1000);
+    c->SetTimeout(c->timer_ping_, 200);
     uint64_t cur_ms = get_current_time_ms();
     if (c->GetState() != CONNECTED) {
         if (cur_ms - c->last_msg_ts_ > 6000) {
@@ -284,15 +284,15 @@ void UserConn::TimerCBPing(evutil_socket_t fd, short what, void *ctx)
         // after uthed
         if (c->last_ping_ts_) {
             // ping sent
-            if (cur_ms - c->last_msg_ts_ > 11000) {
-                // 8 + 3s timeout for ping = 11s
+            if (cur_ms - c->last_msg_ts_ > 9500) {
+                // 1.5 + 8s timeout for ping = 9.5s
                 LOG_WARN("[%p] conn ping timeout!", c);
                 delete c;
                 return;
             }
         } else {
             // check need ping
-            if (cur_ms - c->last_msg_ts_ > 8000) {
+            if (cur_ms - c->last_msg_ts_ > 1500) {
                 c->ping_key_ = rand();
                 c->last_ping_ts_ = cur_ms;
                 c->outside_proto_->EncPing(c->ping_key_);
